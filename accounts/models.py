@@ -3,9 +3,17 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from accounts.managers import CustomUserManager
+import uuid
 
 class CustomUser(AbstractUser):
+    ROLE_CHOICES = (
+        ('MEMBER', 'Member'),
+        ('STAFF', 'Staff'),
+        ('ADMIN', 'Admin'),
+    )
     username = None
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='MEMBER')
     email = models.EmailField(unique=True, max_length=255)
     phone = models.PositiveIntegerField(unique=True, null=True, blank=True)
 

@@ -13,6 +13,10 @@ class FitnessClassViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        # Handle Swagger schema generation
+        if getattr(self, 'swagger_fake_view', False):
+            return FitnessClass.objects.none()
+
         user = self.request.user
         if user.is_superuser:
             return FitnessClass.objects.select_related('instructor').all()

@@ -15,6 +15,7 @@ class CustomUser(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='MEMBER')
     email = models.EmailField(unique=True, max_length=255)
+    email_verified = models.BooleanField(default=False)
     phone = models.PositiveIntegerField(unique=True, null=True, blank=True)
 
     USERNAME_FIELD = 'email'

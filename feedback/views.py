@@ -2,10 +2,11 @@ from django.shortcuts import render
 from rest_framework import viewsets, permissions
 from feedback.models import Feedback
 from feedback.serializers import FeedbackSerializer
+from core.permissions import IsMemberOrAdminStaff
 
 # Create your views here.
 
 class FeedbackViewSet(viewsets.ModelViewSet):
     queryset = Feedback.objects.select_related('user', 'fitness_class').all()
     serializer_class = FeedbackSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsMemberOrAdminStaff]

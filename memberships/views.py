@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from rest_framework import viewsets, permissions
+from rest_framework.exceptions import ValidationError
 from memberships.models import MembershipPlan, Membership
 from memberships.serializers import MembershipPlanSerializer, MembershipSerializer
 from core.permissions import IsAdminOrStaff, IsMemberOrAdminStaff
@@ -12,12 +13,15 @@ class MembershipPlanViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminOrStaff]
 
     def get_queryset(self):
-        user = self.request.user
-        if user.is_superuser or user.role == 'ADMIN':
-            return MembershipPlan.objects.all()
-        elif user.role == 'STAFF':
-            return MembershipPlan.objects.all()
-        return MembershipPlan.objects.none()
+        try:
+            user = self.request.user
+            if user.is_superuser or user.role == 'ADMIN':
+                return MembershipPlan.objects.all()
+            elif user.role == 'STAFF':
+                return MembershipPlan.objects.all()
+            return MembershipPlan.objects.none()
+        except Exception as e:
+            raise ValidationError({'error': str(e)})
 
 class MembershipViewSet(viewsets.ModelViewSet):
     queryset = Membership.objects.select_related('user', 'plan').all()

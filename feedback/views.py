@@ -4,6 +4,8 @@ from rest_framework.exceptions import ValidationError
 from feedback.models import Feedback
 from feedback.serializers import FeedbackSerializer
 from core.permissions import IsMemberOrAdminStaff
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 # Create your views here.
 
@@ -27,3 +29,25 @@ class FeedbackViewSet(viewsets.ModelViewSet):
             return Feedback.objects.none()
         except Exception as e:
             raise ValidationError({'error': str(e)})
+    
+    @swagger_auto_schema(
+        operation_description="Retrieve all feedback",
+        responses={
+            200: FeedbackSerializer(many= True),
+            403:"Forbidden",
+        }
+
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @swagger_auto_schema(
+        operation_description="Create a new feedback",
+        request_body=FeedbackSerializer,
+        responses={
+            201: FeedbackSerializer,
+            400: "Bad Request",
+        }
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)

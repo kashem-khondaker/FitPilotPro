@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from classes.models import FitnessClass, ClassBooking
 from classes.serializers import FitnessClassSerializer, ClassBookingSerializer
 from core.permissions import IsAdminOrStaffOrReadOnly
+from drf_yasg.utils import swagger_auto_schema
 # Create your views here.
 
 class FitnessClassViewSet(viewsets.ModelViewSet):
@@ -24,6 +25,27 @@ class FitnessClassViewSet(viewsets.ModelViewSet):
             return FitnessClass.objects.select_related('instructor').all()
         
         return FitnessClass.objects.none()
+    
+    @swagger_auto_schema(
+        operation_description="Retrieve all fitness classes",
+        responses={
+            200: FitnessClassSerializer(many=True),
+            403: "Forbidden",
+        }
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @swagger_auto_schema(
+        operation_description="Create a new fitness class",
+        request_body= FitnessClassSerializer,
+        responses={
+            201: FitnessClassSerializer,
+            400: "Bad Request",
+        }
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
 
 
     # def create(self, request, *args, **kwargs):

@@ -6,6 +6,8 @@ from rest_framework.exceptions import ValidationError
 from payments.models import Payment
 from payments.serializers import PaymentSerializer
 from core.permissions import IsMemberOrAdminStaff, IsAdminOrStaff
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 # Create your views here.
 
@@ -29,6 +31,27 @@ class PaymentViewSet(viewsets.ModelViewSet):
             return Payment.objects.none()
         except Exception as e:
             raise ValidationError({'error': str(e)})
+
+    @swagger_auto_schema(
+        operation_description="Retrieve all payments",
+        responses={
+            200: PaymentSerializer(many=True),
+            403: "Forbidden",
+        }
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_description="Create a new payment",
+        request_body=PaymentSerializer,
+        responses={
+            201: PaymentSerializer,
+            400: "Bad Request",
+        }
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
 
     @action(detail=False, methods=['get'], permission_classes=[IsAdminOrStaff])
     def payment_report(self, request):

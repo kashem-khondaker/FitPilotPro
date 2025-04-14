@@ -6,6 +6,7 @@ from rest_framework.exceptions import ValidationError
 from attendance.models import Attendance
 from attendance.serializers import AttendanceSerializer
 from core.permissions import IsAdminOrStaff
+from drf_yasg.utils import swagger_auto_schema
 
 # Create your views here.
 
@@ -29,6 +30,27 @@ class AttendanceViewSet(viewsets.ModelViewSet):
             return Attendance.objects.none()
         except Exception as e:
             raise ValidationError({'error': str(e)})
+    
+    @swagger_auto_schema(
+        operation_description="Retrieve all attendances",
+        responses={
+            200: AttendanceSerializer(many=True),
+            403: "Forbidden",
+        }
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_description="Create a new payment",
+        request_body=AttendanceSerializer,
+        responses={
+            201: AttendanceSerializer,
+            400: "Bad Request",
+        }
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
 
     @action(detail=False, methods=['get'], permission_classes=[IsAdminOrStaff])
     def attendance_report(self, request):

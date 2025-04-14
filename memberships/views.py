@@ -4,6 +4,8 @@ from rest_framework.exceptions import ValidationError
 from memberships.models import MembershipPlan, Membership
 from memberships.serializers import MembershipPlanSerializer, MembershipSerializer
 from core.permissions import IsAdminOrStaff, IsMemberOrAdminStaff
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 # Create your views here.
 
@@ -22,6 +24,27 @@ class MembershipPlanViewSet(viewsets.ModelViewSet):
             return MembershipPlan.objects.none()
         except Exception as e:
             raise ValidationError({'error': str(e)})
+
+    @swagger_auto_schema(
+        operation_description="Retrieve all membership plans",
+        responses={
+            200: MembershipPlanSerializer(many=True),
+            403: "Forbidden",
+        }
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_description="Create a new membership plan",
+        request_body=MembershipPlanSerializer,
+        responses={
+            201: MembershipPlanSerializer,
+            400: "Bad Request",
+        }
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
 
 class MembershipViewSet(viewsets.ModelViewSet):
     queryset = Membership.objects.select_related('user', 'plan').all()

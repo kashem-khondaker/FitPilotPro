@@ -18,9 +18,9 @@ class FitnessClassViewSet(viewsets.ModelViewSet):
             return FitnessClass.objects.none()
 
         user = self.request.user
-        if user.is_superuser or user.role in ['ADMIN'] : 
+        if user.is_superuser or user.role == 'ADMIN':
             return FitnessClass.objects.select_related('instructor').all()
-        if user.role == 'STAFF':
+        elif user.role == 'STAFF':
             return FitnessClass.objects.select_related('instructor').all()
         
         return FitnessClass.objects.none()
@@ -48,10 +48,14 @@ class ClassBookingViewSet(viewsets.ModelViewSet):
         if getattr(self, 'swagger_fake_view', False):
             return ClassBooking.objects.none()
         
-        if user.is_superuser or user.role in ['ADMIN', 'STAFF']:
+        if user.is_superuser or user.role == 'ADMIN':
             return ClassBooking.objects.select_related('user', 'fitness_class').all()
+        elif user.role == 'STAFF':
+            return ClassBooking.objects.select_related('user', 'fitness_class').all()
+        elif user.role == 'MEMBER':
+            return ClassBooking.objects.filter(user=user).select_related('user', 'fitness_class')
         
-        return ClassBooking.objects.filter(user=user).select_related('user', 'fitness_class')
+        return ClassBooking.objects.none()
 
 
     # def create(self, request, *args, **kwargs):

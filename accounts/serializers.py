@@ -30,5 +30,5 @@ class UserSerializer(BaseUserSerializer):
 # amar accounts niye aro kaj korte hobe jamon accounts er profile ta nije nije jano update korte pare .. 
 # accounts sodo update korte parbe delete korte parbe admin 
 # profile er role base access control korte hobe .. 
-# profile picture upload korte korar jonno pillow setup korte hobe .. image rakar jonno website a supabase setup korte hobe .. 
+# profile picture upload korte korar jonno pillow setup korte hobe .. image rakar jonno website a supabase setup korte hobe ..
 

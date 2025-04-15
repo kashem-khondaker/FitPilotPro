@@ -12,6 +12,7 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from django_filters import rest_framework as filters
 from core.filters import FitnessClassFilter
+from core.permissions import IsMemberOrAdminStaff
 
 # Create your views here.
 
@@ -123,7 +124,7 @@ class FitnessClassViewSet(viewsets.ModelViewSet):
 class ClassBookingViewSet(viewsets.ModelViewSet):
     
     serializer_class = ClassBookingSerializer
-    permission_classes = [IsAdminOrStaffOrReadOnly]
+    permission_classes = [IsMemberOrAdminStaff]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['fitness_class__name', 'user__email']
     search_fields = ['fitness_class__name', 'user__email']

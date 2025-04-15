@@ -1,11 +1,13 @@
 from django.db import models
 from accounts.models import CustomUser
+from cloudinary.models import CloudinaryField
 
 # Create your models here.
 
 class FitnessClass(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
+    image = CloudinaryField('Class_Image', null=True, blank=True)
     duration = models.IntegerField()
     max_capacity = models.IntegerField()
     instructor = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='fitness_classes')

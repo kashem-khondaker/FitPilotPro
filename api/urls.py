@@ -6,9 +6,11 @@ from payments.views import PaymentViewSet
 from feedback.views import FeedbackViewSet
 from attendance.views import AttendanceViewSet
 from reports.views import ReportViewSet
+# from accounts.views import UserProfileView
 
 router = DefaultRouter()
 
+# router.register(r'users/profile', UserProfileView, basename='userprofile')
 router.register(r'fitness_classes', FitnessClassViewSet, basename='fitnessclass')
 router.register(r'class_bookings', ClassBookingViewSet, basename='classbooking')
 router.register(r'membership_plans', MembershipPlanViewSet, basename='membershipplan')

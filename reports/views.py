@@ -3,15 +3,23 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
-from reports.models import Report
-from reports.serializers import ReportSerializer
 from core.permissions import IsAdminOrStaff
-from memberships.models import Membership
-from memberships.serializers import MembershipSerializer
-from attendance.models import Attendance
-from attendance.serializers import AttendanceSerializer
+
+from accounts.models import CustomUser
+from classes.models import FitnessClass
 from feedback.models import Feedback
+from memberships.models import Membership
+from attendance.models import Attendance
+from payments.models import Payment
+from reports.models import Report
+
+from accounts.serializers import UserSerializer
+from classes.serializers import FitnessClassSerializer
 from feedback.serializers import FeedbackSerializer
+from memberships.serializers import MembershipSerializer
+from attendance.serializers import AttendanceSerializer
+from payments.serializers import PaymentSerializer
+from reports.serializers import ReportSerializer
 
 # Create your views here.
 
@@ -61,8 +69,7 @@ class ReportViewSet(viewsets.ModelViewSet):
         try:
             if request.user.role == 'ADMIN':
                 # Generate user report
-                from accounts.models import CustomUser
-                from accounts.serializers import UserSerializer
+                
                 user_data = CustomUser.objects.all()
                 serializer = UserSerializer(user_data, many=True)
                 return Response(serializer.data)
@@ -75,8 +82,7 @@ class ReportViewSet(viewsets.ModelViewSet):
         try:
             if request.user.role == 'ADMIN':
                 # Generate class report
-                from classes.models import FitnessClass
-                from classes.serializers import FitnessClassSerializer
+                
                 class_data = FitnessClass.objects.select_related('instructor').all()
                 serializer = FitnessClassSerializer(class_data, many=True)
                 return Response(serializer.data)
@@ -89,8 +95,7 @@ class ReportViewSet(viewsets.ModelViewSet):
         try:
             if request.user.role == 'ADMIN':
                 # Generate payment report
-                from payments.models import Payment
-                from payments.serializers import PaymentSerializer
+                
                 payment_data = Payment.objects.select_related('user', 'membership_plan').all()
                 serializer = PaymentSerializer(payment_data, many=True)
                 return Response(serializer.data)

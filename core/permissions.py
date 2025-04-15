@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from rest_framework import permissions
 from classes.models import FitnessClass, ClassBooking
+from payments.models import Payment
 
 # Create your views here.
 
@@ -82,3 +83,19 @@ class IsMemberOrAdminStaff(permissions.BasePermission):
             if isinstance(obj, ClassBooking):
                 return obj.user == request.user
         return True
+
+class PaymentPermissions(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.user.is_authenticated:
+            if request.method in permissions.SAFE_METHODS:
+                return True
+            return request.user.role in ['ADMIN', 'STAFF', 'MEMBER']
+        return False
+
+    def has_object_permission(self, request, view, obj):
+        # Members can only modify their own payments
+        if request.user.role == 'MEMBER':
+            if isinstance(obj, Payment):
+                return obj.user == request.user
+        # Staff and Admin can access all payments
+        return request.user.role in ['ADMIN', 'STAFF']

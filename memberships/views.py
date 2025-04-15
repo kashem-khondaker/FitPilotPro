@@ -3,7 +3,6 @@ from rest_framework import viewsets, permissions
 from rest_framework.exceptions import ValidationError
 from memberships.models import MembershipPlan, Membership
 from memberships.serializers import MembershipPlanSerializer, MembershipSerializer
-from core.permissions import IsAdminOrStaff, IsMemberOrAdminStaff
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.filters import SearchFilter, OrderingFilter
@@ -11,6 +10,9 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import PageNumberPagination
 from django_filters import rest_framework as filters
 from core.filters import MembershipPlanFilter
+from core.permissions import IsAdminOrStaffOrReadOnly , IsMemberOrAdminStaff
+from rest_framework.response import Response
+from rest_framework import status
 
 # Create your views here.
 
@@ -25,7 +27,7 @@ class MembershipPagination(PageNumberPagination):
 class MembershipPlanViewSet(viewsets.ModelViewSet):
     queryset = MembershipPlan.objects.all()
     serializer_class = MembershipPlanSerializer
-    permission_classes = [IsAdminOrStaff]
+    permission_classes = [IsAdminOrStaffOrReadOnly ]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['price', 'duration_in_days']
     search_fields = ['name', 'description']
@@ -37,13 +39,13 @@ class MembershipPlanViewSet(viewsets.ModelViewSet):
         try:
             user = self.request.user
             if not user.is_authenticated:
-                return MembershipPlan.objects.none()
+                return MembershipPlan.objects.all()
 
             if user.is_superuser or user.role == 'ADMIN':
                 return MembershipPlan.objects.all()
             elif user.role == 'STAFF':
                 return MembershipPlan.objects.all()
-            return MembershipPlan.objects.none()
+            return MembershipPlan.objects.all()
         except Exception as e:
             raise ValidationError({'error': str(e)})
 
@@ -120,9 +122,9 @@ class MembershipPlanViewSet(viewsets.ModelViewSet):
         return super().destroy(request, *args, **kwargs)
 
 class MembershipViewSet(viewsets.ModelViewSet):
-    queryset = Membership.objects.select_related('user', 'plan').all()
+
     serializer_class = MembershipSerializer
-    permission_classes = [IsMemberOrAdminStaff]
+    # permission_classes = [IsMemberOrAdminStaff]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['is_active', 'plan__name']
     search_fields = ['user__email', 'plan__name']
@@ -145,4 +147,47 @@ class MembershipViewSet(viewsets.ModelViewSet):
             return Membership.objects.filter(user=user).select_related('user', 'plan')
         return Membership.objects.none()
 
-# inishial project download done
+    @swagger_auto_schema(
+        operation_description="Create a new membership (Admin only)",
+        request_body=MembershipSerializer,
+        responses={
+            201: MembershipSerializer,
+            403: "Forbidden - Only admins can create memberships",
+            400: "Bad Request",
+        }
+    )
+    def create(self, request, *args, **kwargs):
+        user = request.user
+        if not (user.is_superuser or user.role == 'ADMIN'):
+            return Response({'detail': 'You do not have permission to create memberships.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().create(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_description="Update an existing membership (Admin only)",
+        request_body=MembershipSerializer,
+        responses={
+            200: MembershipSerializer,
+            403: "Forbidden - Only admins can update memberships",
+            400: "Bad Request",
+            404: "Not Found",
+        }
+    )
+    def update(self, request, *args, **kwargs):
+        user = request.user
+        if not (user.is_superuser or user.role == 'ADMIN'):
+            return Response({'detail': 'You do not have permission to update memberships.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().update(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_description="Delete a membership (Admin only)",
+        responses={
+            204: "No Content",
+            403: "Forbidden - Only admins can delete memberships",
+            404: "Not Found",
+        }
+    )
+    def destroy(self, request, *args, **kwargs):
+        user = request.user
+        if not (user.is_superuser or user.role == 'ADMIN'):
+            return Response({'detail': 'You do not have permission to delete memberships.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().destroy(request, *args, **kwargs)

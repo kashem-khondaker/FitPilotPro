@@ -4,6 +4,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from accounts.managers import CustomUserManager
 import uuid
+from cloudinary.models import CloudinaryField
 
 class CustomUser(AbstractUser):
     ROLE_CHOICES = (
@@ -32,7 +33,7 @@ class Profile(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     bio = models.TextField(null=True, blank=True)
-    profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)
+    profile_picture = CloudinaryField('Profile_Image', null=True, blank=True)
     address = models.TextField(null=True, blank=True)
     city = models.CharField(max_length=255, null=True, blank=True)
     state = models.CharField(max_length=255, null=True, blank=True)

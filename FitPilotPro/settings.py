@@ -1,5 +1,7 @@
 from pathlib import Path
 from datetime import timedelta
+import cloudinary
+from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -105,6 +107,11 @@ REST_FRAMEWORK = {
     ]
 }
 
+REST_FRAMEWORK.update({
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
+})
+
 DJOSER = {
     'LOGIN_FIELD': 'email',
     'USER_CREATE_PASSWORD_RETYPE': True,
@@ -127,3 +134,19 @@ SWAGGER_SETTINGS = {
       }
    }
 }
+
+# Configuration       
+cloudinary.config( 
+    cloud_name = config('cloud_name'), 
+    api_key = config('api_key'), 
+    api_secret = config('api_secret'), 
+)
+
+# Cloudinary settings for media files
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+STATIC_URL = 'static/'
+MEDIA_URL = '/media/'
+
+MEDIA_ROOT = BASE_DIR / 'media'
+

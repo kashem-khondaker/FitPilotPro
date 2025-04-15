@@ -7,6 +7,7 @@ from accounts.models import Profile
 User = get_user_model()
 
 class ProfileSerializer(serializers.ModelSerializer):
+    profile_picture = serializers.ImageField(required=False, allow_null=True)
     class Meta:
         model = Profile
         fields = ['first_name', 'last_name', 'bio', 'profile_picture', 'address', 'city', 'state', 'country']
@@ -27,8 +28,8 @@ class UserSerializer(BaseUserSerializer):
         model = User
         fields = ['id', 'email', 'role', 'phone', 'profile']
 
-# amar accounts niye aro kaj korte hobe jamon accounts er profile ta nije nije jano update korte pare .. 
-# accounts sodo update korte parbe delete korte parbe admin 
-# profile er role base access control korte hobe .. 
-# profile picture upload korte korar jonno pillow setup korte hobe .. image rakar jonno website a supabase setup korte hobe ..
 
+# class UserProfileSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = User
+#         fields = ['id', 'username', 'email', 'first_name', 'last_name']

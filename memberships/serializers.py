@@ -8,8 +8,11 @@ class MembershipPlanSerializer(serializers.ModelSerializer):
         read_only_fields = ['created_at', 'updated_at']
 
 class MembershipSerializer(serializers.ModelSerializer):
-    plan = MembershipPlanSerializer(read_only=True)
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    plan = serializers.PrimaryKeyRelatedField(queryset=MembershipPlan.objects.all())
+    plan_detail = MembershipPlanSerializer(source='plan', read_only=True)
 
     class Meta:
         model = Membership
-        fields = ['id', 'user', 'plan', 'start_date', 'end_date', 'is_active']
+        fields = ['id', 'user', 'plan', 'plan_detail' , 'start_date', 'end_date', 'is_active']
+        # read_only_fields = ['start_date', 'end_date']

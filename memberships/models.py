@@ -20,7 +20,7 @@ class Membership(models.Model):
     plan = models.ForeignKey(MembershipPlan, on_delete=models.CASCADE , related_name='memberships')
     start_date = models.DateTimeField(auto_now_add=True)
     end_date = models.DateTimeField()
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.user.username} - {self.plan.name}"

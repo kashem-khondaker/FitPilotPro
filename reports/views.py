@@ -24,6 +24,21 @@ from reports.serializers import ReportSerializer
 # Create your views here.
 
 class ReportViewSet(viewsets.ModelViewSet):
+
+    """
+    Report Viewset to handle all reports related to the fitness application.
+    This viewset provides endpoints for generating various reports such as:
+    
+    1. Membership Report: /reports/membership_report/
+    2. Attendance Report: /reports/attendance_report/
+    3. Feedback Report: /reports/feedback_report/
+    4. User Report: /reports/user_report/
+    5. Class Report: /reports/class_report/
+    6. Payment Report: /reports/payment_report/
+    
+    """
+
+
     queryset = Report.objects.select_related('user', 'fitness_class').all()
     serializer_class = ReportSerializer
     permission_classes = [IsAdminOrStaff]
@@ -102,3 +117,4 @@ class ReportViewSet(viewsets.ModelViewSet):
             return Response({'detail': 'Not authorized'}, status=status.HTTP_403_FORBIDDEN)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+

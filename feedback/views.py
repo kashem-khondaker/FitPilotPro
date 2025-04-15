@@ -9,6 +9,7 @@ from feedback.serializers import FeedbackSerializer
 from core.permissions import IsMemberOrAdminStaff
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from core.permissions import FeedbackPermission
 
 # Create your views here.
 
@@ -18,7 +19,7 @@ class FeedbackPagination(PageNumberPagination):
 class FeedbackViewSet(viewsets.ModelViewSet):
     queryset = Feedback.objects.select_related('user', 'fitness_class').all()
     serializer_class = FeedbackSerializer
-    permission_classes = [IsMemberOrAdminStaff]
+    permission_classes = [FeedbackPermission]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['rating', 'fitness_class__name']
     search_fields = ['comment', 'fitness_class__name', 'user__email']

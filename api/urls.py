@@ -11,14 +11,14 @@ from reports.views import ReportViewSet
 router = DefaultRouter()
 
 # router.register(r'users/profile', UserProfileView, basename='userprofile')
-router.register(r'fitness_classes', FitnessClassViewSet, basename='fitnessclass')
-router.register(r'class_bookings', ClassBookingViewSet, basename='classbooking')
-router.register(r'membership_plans', MembershipPlanViewSet, basename='membershipplan')
-router.register(r'memberships', MembershipViewSet, basename='membership')
-router.register(r'payments', PaymentViewSet, basename='payment')
-router.register(r'feedbacks', FeedbackViewSet, basename='feedback')
-router.register(r'attendances', AttendanceViewSet, basename='attendance')
-router.register(r'reports', ReportViewSet, basename='report')
+router.register(r'fitness_classes', FitnessClassViewSet, basename='fitnessclass') # ok 
+router.register(r'class_bookings', ClassBookingViewSet, basename='classbooking') # ok 
+router.register(r'membership_plans', MembershipPlanViewSet, basename='membershipplan') # ok 
+router.register(r'memberships', MembershipViewSet, basename='membership') # ok
+router.register(r'payments', PaymentViewSet, basename='payment') # ok
+router.register(r'feedbacks', FeedbackViewSet, basename='feedback') #
+router.register(r'attendances', AttendanceViewSet, basename='attendance') #
+router.register(r'reports', ReportViewSet, basename='report') #
 
 
 urlpatterns = [

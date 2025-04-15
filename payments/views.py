@@ -38,11 +38,16 @@ class PaymentViewSet(viewsets.ModelViewSet):
             raise ValidationError({'error': str(e)})
 
     @swagger_auto_schema(
-        operation_description="Retrieve all payments",
+        operation_description="Retrieve a paginated list of payments",
         responses={
             200: PaymentSerializer(many=True),
             403: "Forbidden",
-        }
+        },
+        manual_parameters=[
+            openapi.Parameter('page', openapi.IN_QUERY, description="Page number", type=openapi.TYPE_INTEGER),
+            openapi.Parameter('amount_min', openapi.IN_QUERY, description="Minimum amount", type=openapi.TYPE_NUMBER),
+            openapi.Parameter('amount_max', openapi.IN_QUERY, description="Maximum amount", type=openapi.TYPE_NUMBER),
+        ]
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
@@ -57,6 +62,50 @@ class PaymentViewSet(viewsets.ModelViewSet):
     )
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_description="Retrieve details of a specific payment",
+        responses={
+            200: PaymentSerializer,
+            404: "Not Found",
+        }
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_description="Update details of a specific payment",
+        request_body=PaymentSerializer,
+        responses={
+            200: PaymentSerializer,
+            400: "Bad Request",
+            404: "Not Found",
+        }
+    )
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_description="Partially update details of a specific payment",
+        request_body=PaymentSerializer,
+        responses={
+            200: PaymentSerializer,
+            400: "Bad Request",
+            404: "Not Found",
+        }
+    )
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_description="Delete a specific payment",
+        responses={
+            204: "No Content",
+            404: "Not Found",
+        }
+    )
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
 
     @action(detail=False, methods=['get'], permission_classes=[IsAdminOrStaff])
     def payment_report(self, request):

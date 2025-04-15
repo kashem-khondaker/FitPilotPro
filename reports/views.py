@@ -55,3 +55,45 @@ class ReportViewSet(viewsets.ModelViewSet):
             return Response({'detail': 'Not authorized'}, status=status.HTTP_403_FORBIDDEN)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['get'], permission_classes=[IsAdminOrStaff])
+    def user_report(self, request):
+        try:
+            if request.user.role == 'ADMIN':
+                # Generate user report
+                from accounts.models import CustomUser
+                from accounts.serializers import UserSerializer
+                user_data = CustomUser.objects.all()
+                serializer = UserSerializer(user_data, many=True)
+                return Response(serializer.data)
+            return Response({'detail': 'Not authorized'}, status=status.HTTP_403_FORBIDDEN)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['get'], permission_classes=[IsAdminOrStaff])
+    def class_report(self, request):
+        try:
+            if request.user.role == 'ADMIN':
+                # Generate class report
+                from classes.models import FitnessClass
+                from classes.serializers import FitnessClassSerializer
+                class_data = FitnessClass.objects.select_related('instructor').all()
+                serializer = FitnessClassSerializer(class_data, many=True)
+                return Response(serializer.data)
+            return Response({'detail': 'Not authorized'}, status=status.HTTP_403_FORBIDDEN)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['get'], permission_classes=[IsAdminOrStaff])
+    def payment_report(self, request):
+        try:
+            if request.user.role == 'ADMIN':
+                # Generate payment report
+                from payments.models import Payment
+                from payments.serializers import PaymentSerializer
+                payment_data = Payment.objects.select_related('user', 'membership_plan').all()
+                serializer = PaymentSerializer(payment_data, many=True)
+                return Response(serializer.data)
+            return Response({'detail': 'Not authorized'}, status=status.HTTP_403_FORBIDDEN)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

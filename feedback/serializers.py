@@ -6,6 +6,7 @@ class FitnessClassSerializer(serializers.ModelSerializer):
     class Meta:
         model = FitnessClass
         fields = ['id', 'name', 'description', 'duration', 'instructor']
+        ref_name = 'FeedbackFitnessClass'
 
 class FeedbackSerializer(serializers.ModelSerializer):
     fitness_class = FitnessClassSerializer(read_only=True)

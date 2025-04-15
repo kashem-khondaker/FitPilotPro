@@ -17,6 +17,9 @@ class MembershipPlanViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         try:
             user = self.request.user
+            if not user.is_authenticated:
+                return MembershipPlan.objects.none()
+
             if user.is_superuser or user.role == 'ADMIN':
                 return MembershipPlan.objects.all()
             elif user.role == 'STAFF':
@@ -54,8 +57,11 @@ class MembershipViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         if getattr(self, 'swagger_fake_view', False):
             return Membership.objects.none()
-        
+
         user = self.request.user
+        if not user.is_authenticated:
+            return Membership.objects.none()
+
         if user.is_superuser or user.role == 'ADMIN':
             return Membership.objects.select_related('user', 'plan').all()
         elif user.role == 'STAFF':
@@ -65,3 +71,4 @@ class MembershipViewSet(viewsets.ModelViewSet):
         return Membership.objects.none()
 
 # inishial project download done
+   

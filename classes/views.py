@@ -19,12 +19,15 @@ class FitnessClassViewSet(viewsets.ModelViewSet):
             return FitnessClass.objects.none()
 
         user = self.request.user
+        if not user.is_authenticated:
+            return FitnessClass.objects.select_related('instructor').all()
+
         if user.is_superuser or user.role == 'ADMIN':
             return FitnessClass.objects.select_related('instructor').all()
         elif user.role == 'STAFF':
             return FitnessClass.objects.select_related('instructor').all()
         
-        return FitnessClass.objects.none()
+        return FitnessClass.objects.select_related('instructor').all()
     
     @swagger_auto_schema(
         operation_description="Retrieve all fitness classes",

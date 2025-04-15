@@ -9,6 +9,7 @@ class FitnessClassSerializer(serializers.ModelSerializer):
         model = FitnessClass
         fields = ['id', 'name', 'description', 'duration', 'max_capacity', 'instructor', 'schedule', 'created_at', 'updated_at']
         read_only_fields = ['created_at', 'updated_at']
+        ref_name = 'ClassesFitnessClass'
 
 class ClassBookingSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())

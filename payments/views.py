@@ -14,6 +14,7 @@ from drf_yasg import openapi
 from memberships.models import Membership, MembershipPlan
 from core.permissions import PaymentPermissions
 from core.filters import PaymentFilter
+from datetime import timedelta
 
 class PaymentPagination(PageNumberPagination):
     page_size = 15
@@ -84,6 +85,23 @@ class PaymentViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
+
+        # Automatically create a Membership after successful payment
+        payment_instance = serializer.instance
+        payment_instance.is_successful = True  # Mark payment as successful
+        payment_instance.save()
+
+        if membership_plan_id:
+            membership = Membership.objects.create(
+                user=payment_instance.user,
+                plan=MembershipPlan.objects.get(id=membership_plan_id),
+                start_date=payment_instance.payment_date,
+                end_date=payment_instance.payment_date + timedelta(days=plan.duration_in_days),
+                is_active=True
+            )
+            payment_instance.membership = membership  # Link membership to payment
+            payment_instance.save()
+
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @swagger_auto_schema(

@@ -4,7 +4,19 @@
 
 The Gym Management System is a comprehensive web application designed to manage gym operations efficiently. It provides role-based access control for Members, Staff, and Admins, ensuring secure and streamlined management of memberships, fitness classes, attendance, payments, feedback, and reports.
 
-## Features
+## Key Features
+
+- **Role-Based Access Control**: Secure access for Members, Staff, and Admins with distinct permissions.
+- **Membership Management**: Create, update, and manage membership plans and subscriptions.
+- **Class Scheduling**: Manage fitness classes with detailed schedules and instructor assignments.
+- **Attendance Tracking**: Record and view attendance for fitness classes.
+- **Payment Processing**: Handle payments with filtering, searching, and reporting capabilities.
+- **Feedback System**: Collect and manage feedback from members for continuous improvement.
+- **Comprehensive Reporting**: Generate detailed reports for memberships, attendance, payments, and feedback.
+- **API Documentation**: Interactive API documentation with Swagger and ReDoc.
+- **Scalable Deployment**: Designed for secure and scalable hosting environments.
+
+## Features descriptions :
 
 ### 1. User Authentication
 
@@ -37,6 +49,7 @@ The Gym Management System is a comprehensive web application designed to manage 
 - Members can make payments for their subscription plans.
 - Staff can view payment history for Members.
 - Admin can manage all payments and generate payment reports.
+- Payments can be filtered and searched by amount, payment date, and transaction ID.
 
 ### 6. Feedback and Reviews
 
@@ -50,10 +63,17 @@ The Gym Management System is a comprehensive web application designed to manage 
   - Memberships
   - Attendance
   - Feedback
+  - Payments
 
 ### 8. Deployment
 
 - The application is deployed on a secure and scalable hosting platform.
+
+### 9. Update Details
+
+- Members can update their profile details, including name, bio, and contact information.
+- Admins and Staff can update membership plans, fitness class schedules, and payment records.
+- All updates are logged for audit purposes.
 
 ## Installation
 
@@ -96,11 +116,16 @@ The Gym Management System is a comprehensive web application designed to manage 
 - Access the application at `http://127.0.0.1:8000/`.
 - Use the Admin panel at `http://127.0.0.1:8000/admin/` for administrative tasks.
 
-## Testing
+## API Documentation
+
+- Swagger UI: `http://127.0.0.1:8000/swagger/`
+- ReDoc: `http://127.0.0.1:8000/redoc/`
+
+## Run Server
 
 - Run tests using:
   ```bash
-  python manage.py test
+  python manage.py runserver
   ```
 
 ## Contributing
@@ -110,3 +135,7 @@ The Gym Management System is a comprehensive web application designed to manage 
 ## License
 
 - This project is licensed under the MIT License.
+
+## Contact
+
+- For support, contact: `support@fitpilotpro.com`

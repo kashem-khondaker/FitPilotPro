@@ -11,13 +11,17 @@ def create_membership_on_payment(sender, instance, created, **kwargs):
             start_date = timezone.now()
             end_date = start_date + timezone.timedelta(days=instance.membership_plan.duration_in_days)
 
-            Membership.objects.create(
+            membership = Membership.objects.create(
                 user=instance.user,
                 plan=instance.membership_plan,
                 start_date=start_date,
                 end_date=end_date,
                 is_active=True
             )
+
+            # Link the created membership to the payment
+            instance.membership = membership
+            instance.save()
         except Exception as e:
             print(f"Error creating membership: {e}")
 

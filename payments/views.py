@@ -3,6 +3,7 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
+from rest_framework.pagination import PageNumberPagination
 from payments.models import Payment
 from payments.serializers import PaymentSerializer
 from core.permissions import IsMemberOrAdminStaff, IsAdminOrStaff
@@ -11,10 +12,14 @@ from drf_yasg import openapi
 
 # Create your views here.
 
+class PaymentPagination(PageNumberPagination):
+    page_size = 15
+
 class PaymentViewSet(viewsets.ModelViewSet):
     queryset = Payment.objects.select_related('user', 'membership', 'membership_plan').all()
     serializer_class = PaymentSerializer
     permission_classes = [IsMemberOrAdminStaff]
+    pagination_class = PaymentPagination
 
     def get_queryset(self):
         try:

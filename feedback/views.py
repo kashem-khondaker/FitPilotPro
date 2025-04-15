@@ -1,6 +1,9 @@
 from django.shortcuts import render
 from rest_framework import viewsets, permissions
 from rest_framework.exceptions import ValidationError
+from rest_framework.filters import SearchFilter, OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.pagination import PageNumberPagination
 from feedback.models import Feedback
 from feedback.serializers import FeedbackSerializer
 from core.permissions import IsMemberOrAdminStaff
@@ -9,10 +12,18 @@ from drf_yasg import openapi
 
 # Create your views here.
 
+class FeedbackPagination(PageNumberPagination):
+    page_size = 8
+
 class FeedbackViewSet(viewsets.ModelViewSet):
     queryset = Feedback.objects.select_related('user', 'fitness_class').all()
     serializer_class = FeedbackSerializer
     permission_classes = [IsMemberOrAdminStaff]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['rating', 'fitness_class__name']
+    search_fields = ['comment', 'fitness_class__name', 'user__email']
+    ordering_fields = ['rating', 'created_at']
+    pagination_class = FeedbackPagination
 
     def get_queryset(self):
         try:
@@ -31,12 +42,14 @@ class FeedbackViewSet(viewsets.ModelViewSet):
             raise ValidationError({'error': str(e)})
     
     @swagger_auto_schema(
-        operation_description="Retrieve all feedback",
+        operation_description="Retrieve a paginated list of feedback",
         responses={
-            200: FeedbackSerializer(many= True),
-            403:"Forbidden",
-        }
-
+            200: FeedbackSerializer(many=True),
+            403: "Forbidden",
+        },
+        manual_parameters=[
+            openapi.Parameter('page', openapi.IN_QUERY, description="Page number", type=openapi.TYPE_INTEGER),
+        ]
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)

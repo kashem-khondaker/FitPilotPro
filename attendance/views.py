@@ -3,6 +3,7 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
+from rest_framework.pagination import PageNumberPagination
 from attendance.models import Attendance
 from attendance.serializers import AttendanceSerializer
 from core.permissions import IsAdminOrStaff
@@ -10,10 +11,14 @@ from drf_yasg.utils import swagger_auto_schema
 
 # Create your views here.
 
+class AttendancePagination(PageNumberPagination):
+    page_size = 20
+
 class AttendanceViewSet(viewsets.ModelViewSet):
     queryset = Attendance.objects.select_related('user', 'fitness_class', 'class_booking').all()
     serializer_class = AttendanceSerializer
     permission_classes = [IsAdminOrStaff]
+    pagination_class = AttendancePagination
 
     def get_queryset(self):
         try:

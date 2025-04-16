@@ -6,10 +6,15 @@ from decouple import config
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-gh1ex)4&)2%(%pjktfa*r#&$#%f1yx#$_n*hep-i)1d6p5fev6'
-DEBUG = True
-ALLOWED_HOSTS = []
+DEBUG = False
+ALLOWED_HOSTS = [".vercel.app" , "127.0.0.1"]
+
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STATIC_FILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
+
 
 INSTALLED_APPS = [
+    "whitenoise.runserver_nostatic",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -40,6 +45,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "debug_toolbar.middleware.DebugToolbarMiddleware",
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -161,4 +167,3 @@ EMAIL_HOST_USER=config('EMAIL_HOST_USER')
 
 # Base URL for constructing absolute URLs (e.g., for email verification links)
 BASE_URL = 'http://127.0.0.1:8000'
-

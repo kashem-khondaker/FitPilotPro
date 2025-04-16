@@ -18,7 +18,7 @@ router.register(r'memberships', MembershipViewSet, basename='membership') # ok
 router.register(r'payments', PaymentViewSet, basename='payment') # ok
 router.register(r'feedbacks', FeedbackViewSet, basename='feedback') # ok 
 router.register(r'attendances', AttendanceViewSet, basename='attendance') # 
-router.register(r'reports', ReportViewSet, basename='report') #
+# router.register(r'reports', ReportViewSet, basename='report') #
 
 
 urlpatterns = [

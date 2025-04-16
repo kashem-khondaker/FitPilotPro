@@ -113,13 +113,14 @@ REST_FRAMEWORK.update({
 })
 
 DJOSER = {
-    'LOGIN_FIELD': 'email',
-    'USER_CREATE_PASSWORD_RETYPE': True,
+    'PASSWORD_RESET_CONFIRM_URL': 'reset-password/confirm/{uid}/{token}/',  
+    'ACTIVATION_URL': 'auth/activate/{uid}/{token}/',  
+    'SEND_ACTIVATION_EMAIL': True,  
     'SERIALIZERS': {
         'user_create': 'accounts.serializers.UserCreateSerializer',
         'user': 'accounts.serializers.UserSerializer',
         'current_user': 'accounts.serializers.UserSerializer',
-    }
+    },
 }
 
 SWAGGER_SETTINGS = {
@@ -148,5 +149,16 @@ DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 STATIC_URL = 'static/'
 MEDIA_URL = '/media/'
 
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = BASE_DIR / 'media'\
+
+# setup email backend
+
+EMAIL_HOST_PASSWORD=config('EMAIL_HOST_PASSWORD')
+EMAIL_HOST=config('EMAIL_HOST')
+EMAIL_PORT=config('EMAIL_PORT')
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER=config('EMAIL_HOST_USER')
+
+# Base URL for constructing absolute URLs (e.g., for email verification links)
+BASE_URL = 'http://127.0.0.1:8000'
 

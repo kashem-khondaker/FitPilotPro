@@ -26,6 +26,11 @@ class AttendanceViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+
+        # Handle schema generation or unauthenticated users
+        if getattr(self, 'swagger_fake_view', False) or not user.is_authenticated:
+            return Attendance.objects.none()
+
         if user.is_superuser or user.role == 'ADMIN':
             return Attendance.objects.select_related('user', 'fitness_class', 'class_booking').all()
         elif user.role == 'STAFF':

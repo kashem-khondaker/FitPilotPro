@@ -5,6 +5,7 @@ from django.contrib.auth.models import AbstractUser
 from accounts.managers import CustomUserManager
 import uuid
 from cloudinary.models import CloudinaryField
+from django.utils.translation import gettext_lazy as _
 
 class CustomUser(AbstractUser):
     ROLE_CHOICES = (
@@ -18,6 +19,7 @@ class CustomUser(AbstractUser):
     email = models.EmailField(unique=True, max_length=255)
     email_verified = models.BooleanField(default=False)
     phone = models.PositiveIntegerField(unique=True, null=True, blank=True)
+    is_verified = models.BooleanField(default=False, verbose_name=_('Is Verified'))
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []

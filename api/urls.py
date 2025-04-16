@@ -16,8 +16,8 @@ router.register(r'class_bookings', ClassBookingViewSet, basename='classbooking')
 router.register(r'membership_plans', MembershipPlanViewSet, basename='membershipplan') # ok 
 router.register(r'memberships', MembershipViewSet, basename='membership') # ok
 router.register(r'payments', PaymentViewSet, basename='payment') # ok
-router.register(r'feedbacks', FeedbackViewSet, basename='feedback') #
-router.register(r'attendances', AttendanceViewSet, basename='attendance') #
+router.register(r'feedbacks', FeedbackViewSet, basename='feedback') # ok 
+router.register(r'attendances', AttendanceViewSet, basename='attendance') # 
 router.register(r'reports', ReportViewSet, basename='report') #
 
 

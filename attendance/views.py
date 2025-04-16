@@ -4,6 +4,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated
+from django_filters.rest_framework import DjangoFilterBackend
 from attendance.models import Attendance
 from attendance.serializers import AttendanceSerializer
 from core.permissions import IsAdminOrStaff
@@ -17,25 +19,21 @@ class AttendancePagination(PageNumberPagination):
 class AttendanceViewSet(viewsets.ModelViewSet):
     queryset = Attendance.objects.select_related('user', 'fitness_class', 'class_booking').all()
     serializer_class = AttendanceSerializer
-    permission_classes = [IsAdminOrStaff]
+    permission_classes = [IsAuthenticated, IsAdminOrStaff]
     pagination_class = AttendancePagination
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['fitness_class__name', 'user__email', 'attendance_date']
 
     def get_queryset(self):
-        try:
-            if getattr(self, 'swagger_fake_view', False):
-                return Attendance.objects.none()
+        user = self.request.user
+        if user.is_superuser or user.role == 'ADMIN':
+            return Attendance.objects.select_related('user', 'fitness_class', 'class_booking').all()
+        elif user.role == 'STAFF':
+            return Attendance.objects.select_related('user', 'fitness_class', 'class_booking').all()
+        elif user.role == 'MEMBER':
+            return Attendance.objects.filter(user=user).select_related('user', 'fitness_class', 'class_booking')
+        return Attendance.objects.none()
 
-            user = self.request.user
-            if user.is_superuser or user.role == 'ADMIN':
-                return Attendance.objects.select_related('user', 'fitness_class', 'class_booking').all()
-            elif user.role == 'STAFF':
-                return Attendance.objects.select_related('user', 'fitness_class', 'class_booking').all()
-            elif user.role == 'MEMBER':
-                return Attendance.objects.filter(user=user).select_related('user', 'fitness_class', 'class_booking')
-            return Attendance.objects.none()
-        except Exception as e:
-            raise ValidationError({'error': str(e)})
-    
     @swagger_auto_schema(
         operation_description="Retrieve all attendances",
         responses={
@@ -57,13 +55,17 @@ class AttendanceViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
+    @action(detail=False, methods=['post'], permission_classes=[IsAdminOrStaff])
+    def mark_attendance(self, request):
+        """Allow staff to mark attendance for members."""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
     @action(detail=False, methods=['get'], permission_classes=[IsAdminOrStaff])
     def attendance_report(self, request):
-        try:
-            if request.user.role == 'ADMIN':
-                attendance_data = Attendance.objects.select_related('user', 'fitness_class').all()
-                serializer = self.get_serializer(attendance_data, many=True)
-                return Response(serializer.data)
-            return Response({'detail': 'Not authorized'}, status=status.HTTP_403_FORBIDDEN)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        """Generate attendance reports for admins."""
+        attendance_data = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(attendance_data, many=True)
+        return Response(serializer.data)

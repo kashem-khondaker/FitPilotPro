@@ -3,6 +3,7 @@ from rest_framework import permissions
 from classes.models import FitnessClass, ClassBooking
 from payments.models import Payment
 from feedback.models import Feedback
+from accounts.models import Profile
 
 # Create your views here.
 
@@ -82,6 +83,22 @@ class IsMemberOrAdminStaff(permissions.BasePermission):
         # Members can only modify their own bookings
         if request.user.role == 'MEMBER':
             if isinstance(obj, ClassBooking):
+                return obj.user == request.user
+        return True
+
+
+class ProfilePermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.user.is_authenticated:
+            if request.method in permissions.SAFE_METHODS:
+                return True
+            return request.user.role in ['ADMIN', 'STAFF', 'MEMBER']
+        return False
+
+    def has_object_permission(self, request, view, obj):
+        # Members can only modify their own profile
+        if request.user.role == 'MEMBER':
+            if isinstance(obj, Profile):
                 return obj.user == request.user
         return True
 

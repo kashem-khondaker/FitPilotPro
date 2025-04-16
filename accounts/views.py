@@ -1,23 +1,19 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import UserProfileSerializer
+from .serializers import ProfileSerializer
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
+from core.permissions import ProfilePermission
+from .models import Profile
 
-class UserProfileView(APIView):
-    def get(self, request):
-        user = request.user
-        serializer = UserProfileSerializer(user)
-        return Response(serializer.data)
+class UserProfileView(viewsets.ModelViewSet):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+    permission_classes = [ProfilePermission]
 
-    def put(self, request):
-        user = request.user
-        serializer = UserProfileSerializer(user, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data , status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
 
-    def delete(self, request):
-        user = request.user
-        user.delete()
-        return Response({"detail": "User deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

@@ -7,11 +7,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-gh1ex)4&)2%(%pjktfa*r#&$#%f1yx#$_n*hep-i)1d6p5fev6'
 DEBUG = False
-ALLOWED_HOSTS = [".vercel.app" , "127.0.0.1"]
 
+ALLOWED_HOSTS = [".vercel.app", "127.0.0.1"]
+
+STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATIC_FILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
-
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
 INSTALLED_APPS = [
     "whitenoise.runserver_nostatic",
@@ -73,13 +74,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'FitPilotPro.wsgi.app'
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -90,7 +84,6 @@ DATABASES = {
         'PORT': config('port'),
     }
 }
-
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -104,7 +97,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
@@ -122,18 +114,15 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ]
-}
-
-REST_FRAMEWORK.update({
+    ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
-})
+}
 
 DJOSER = {
-    'PASSWORD_RESET_CONFIRM_URL': 'reset-password/confirm/{uid}/{token}/',  
-    'ACTIVATION_URL': 'auth/activate/{uid}/{token}/',  
-    'SEND_ACTIVATION_EMAIL': True,  
+    'PASSWORD_RESET_CONFIRM_URL': 'reset-password/confirm/{uid}/{token}/',
+    'ACTIVATION_URL': 'auth/activate/{uid}/{token}/',
+    'SEND_ACTIVATION_EMAIL': True,
     'SERIALIZERS': {
         'user_create': 'accounts.serializers.UserCreateSerializer',
         'user': 'accounts.serializers.UserSerializer',
@@ -154,28 +143,23 @@ SWAGGER_SETTINGS = {
    }
 }
 
-# Configuration       
+# Cloudinary configuration
 cloudinary.config( 
     cloud_name = config('cloud_name'), 
     api_key = config('api_key'), 
     api_secret = config('api_secret'), 
 )
 
-# Cloudinary settings for media files
-
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-STATIC_URL = 'static/'
 MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
-MEDIA_ROOT = BASE_DIR / 'media'\
+# Email setup
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+EMAIL_HOST = config('EMAIL_HOST')
+EMAIL_PORT = config('EMAIL_PORT')
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 
-# setup email backend
-
-EMAIL_HOST_PASSWORD=config('EMAIL_HOST_PASSWORD')
-EMAIL_HOST=config('EMAIL_HOST')
-EMAIL_PORT=config('EMAIL_PORT')
-EMAIL_USE_TLS=True
-EMAIL_HOST_USER=config('EMAIL_HOST_USER')
-
-# Base URL for constructing absolute URLs (e.g., for email verification links)
-BASE_URL = 'http://127.0.0.1:8000'
+# For production deployment (e.g., email link redirection)
+BASE_URL = 'https://fitpilotpro.vercel.app'  # Update with your actual Vercel domain

@@ -13,6 +13,8 @@ from core.filters import MembershipPlanFilter
 from core.permissions import IsAdminOrStaffOrReadOnly , IsMemberOrAdminStaff
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.decorators import action
+from core.permissions import IsAdminOrStaff
 
 # Create your views here.
 
@@ -191,3 +193,15 @@ class MembershipViewSet(viewsets.ModelViewSet):
         if not (user.is_superuser or user.role == 'ADMIN'):
             return Response({'detail': 'You do not have permission to delete memberships.'}, status=status.HTTP_403_FORBIDDEN)
         return super().destroy(request, *args, **kwargs)
+
+    @action(detail=False, methods=['get'], permission_classes=[IsAdminOrStaff])
+    def membership_report(self, request):
+        try:
+            if request.user.role in ['ADMIN' , 'STAFF'] or request.user.is_superuser:
+                # Generate membership report
+                membership_data = Membership.objects.select_related('user', 'plan').all()
+                serializer = MembershipSerializer(membership_data, many=True)
+                return Response(serializer.data)
+            return Response({'detail': 'Not authorized'}, status=status.HTTP_403_FORBIDDEN)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -30,9 +30,8 @@ class AttendanceViewSet(viewsets.ModelViewSet):
             return Attendance.objects.select_related('user', 'fitness_class', 'class_booking').all()
         elif user.role == 'STAFF':
             return Attendance.objects.select_related('user', 'fitness_class', 'class_booking').all()
-        elif user.role == 'MEMBER':
-            return Attendance.objects.filter(user=user).select_related('user', 'fitness_class', 'class_booking')
-        return Attendance.objects.none()
+        # Restrict MEMBER role to only see their own attendance
+        return Attendance.objects.filter(user=user).select_related('user', 'fitness_class', 'class_booking')
 
     @swagger_auto_schema(
         operation_description="Retrieve all attendances",
@@ -54,14 +53,15 @@ class AttendanceViewSet(viewsets.ModelViewSet):
     )
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
+    
 
-    @action(detail=False, methods=['post'], permission_classes=[IsAdminOrStaff])
-    def mark_attendance(self, request):
-        """Allow staff to mark attendance for members."""
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    # @action(detail=False, methods=['post'], permission_classes=[IsAdminOrStaff])
+    # def mark_attendance(self, request):
+    #     """Allow staff to mark attendance for members."""
+    #     serializer = self.get_serializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     serializer.save()
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=['get'], permission_classes=[IsAdminOrStaff])
     def attendance_report(self, request):

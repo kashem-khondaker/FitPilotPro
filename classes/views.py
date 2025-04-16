@@ -13,6 +13,9 @@ from drf_yasg import openapi
 from django_filters import rest_framework as filters
 from core.filters import FitnessClassFilter
 from core.permissions import IsMemberOrAdminStaff
+from rest_framework.decorators import action
+from core.permissions import IsAdminOrStaff
+from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
 
@@ -121,6 +124,20 @@ class FitnessClassViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
 
+
+    @action(detail=False, methods=['get'], permission_classes=[IsAdminOrStaff])
+    def class_report(self, request):
+        try:
+            if request.user.role == 'ADMIN' or request.user.is_superuser:
+                # Generate class report
+                class_data = FitnessClass.objects.select_related('instructor').all()
+                serializer = FitnessClassSerializer(class_data, many=True)
+                return Response(serializer.data)
+            return Response({'detail': 'Not authorized'}, status=status.HTTP_403_FORBIDDEN)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class ClassBookingViewSet(viewsets.ModelViewSet):
     
     serializer_class = ClassBookingSerializer
@@ -189,3 +206,15 @@ class ClassBookingViewSet(viewsets.ModelViewSet):
     )
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
+
+    @action(detail=False , methods=['get'] , permission_classes=[IsAdminOrStaff])
+    def class_booking_report(self , request):
+        try:
+            if request.user.role in ['ADMIN' , 'STAFF'] or request.user.is_superuser:
+                # Generate class booking report
+                booking_data = ClassBooking.objects.select_related('user' , 'fitness_class').all()
+                serializer = ClassBookingSerializer(booking_data , many=True)
+                return Response(serializer.data)
+            return Response({'detail': 'Not authorized'}, status=status.HTTP_403_FORBIDDEN)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

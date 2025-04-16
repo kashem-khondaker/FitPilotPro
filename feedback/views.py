@@ -10,7 +10,10 @@ from core.permissions import IsMemberOrAdminStaff
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from core.permissions import FeedbackPermission
-
+from core.permissions import IsAdminOrStaff
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.decorators import action
 # Create your views here.
 
 class FeedbackPagination(PageNumberPagination):
@@ -65,3 +68,17 @@ class FeedbackViewSet(viewsets.ModelViewSet):
     )
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
+
+
+    @action(detail=False, methods=['get'], permission_classes=[IsAdminOrStaff])
+    def feedback_report(self, request):
+        try:
+            if request.user.role == 'ADMIN' or request.user.is_superuser:
+                # Generate feedback report
+                feedback_data = Feedback.objects.select_related('user', 'fitness_class').all()
+                serializer = FeedbackSerializer(feedback_data, many=True)
+                return Response(serializer.data)
+            return Response({'detail': 'Not authorized'}, status=status.HTTP_403_FORBIDDEN)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+

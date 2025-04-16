@@ -43,17 +43,6 @@ class ReportViewSet(viewsets.ModelViewSet):
     serializer_class = ReportSerializer
     permission_classes = [IsAdminOrStaff]
 
-    @action(detail=False, methods=['get'], permission_classes=[IsAdminOrStaff])
-    def membership_report(self, request):
-        try:
-            if request.user.role == 'ADMIN':
-                # Generate membership report
-                membership_data = Membership.objects.select_related('user', 'plan').all()
-                serializer = MembershipSerializer(membership_data, many=True)
-                return Response(serializer.data)
-            return Response({'detail': 'Not authorized'}, status=status.HTTP_403_FORBIDDEN)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['get'], permission_classes=[IsAdminOrStaff])
     def attendance_report(self, request):
@@ -68,18 +57,6 @@ class ReportViewSet(viewsets.ModelViewSet):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['get'], permission_classes=[IsAdminOrStaff])
-    def feedback_report(self, request):
-        try:
-            if request.user.role == 'ADMIN':
-                # Generate feedback report
-                feedback_data = Feedback.objects.select_related('user', 'fitness_class').all()
-                serializer = FeedbackSerializer(feedback_data, many=True)
-                return Response(serializer.data)
-            return Response({'detail': 'Not authorized'}, status=status.HTTP_403_FORBIDDEN)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    @action(detail=False, methods=['get'], permission_classes=[IsAdminOrStaff])
     def user_report(self, request):
         try:
             if request.user.role == 'ADMIN':
@@ -87,19 +64,6 @@ class ReportViewSet(viewsets.ModelViewSet):
                 
                 user_data = CustomUser.objects.all()
                 serializer = UserSerializer(user_data, many=True)
-                return Response(serializer.data)
-            return Response({'detail': 'Not authorized'}, status=status.HTTP_403_FORBIDDEN)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    @action(detail=False, methods=['get'], permission_classes=[IsAdminOrStaff])
-    def class_report(self, request):
-        try:
-            if request.user.role == 'ADMIN':
-                # Generate class report
-                
-                class_data = FitnessClass.objects.select_related('instructor').all()
-                serializer = FitnessClassSerializer(class_data, many=True)
                 return Response(serializer.data)
             return Response({'detail': 'Not authorized'}, status=status.HTTP_403_FORBIDDEN)
         except Exception as e:

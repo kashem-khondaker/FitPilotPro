@@ -71,7 +71,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'FitPilotPro.wsgi.application'
+WSGI_APPLICATION = 'FitPilotPro.wsgi.app'
 
 DATABASES = {
     'default': {

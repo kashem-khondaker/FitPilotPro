@@ -23,7 +23,8 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/', include('djoser.urls')),
-    path('', include('api.urls')),
+    path('', include('api.urls'), name='api-root'),
+    # path('api/v1/', include('api.urls'), name='api-root'),
     # Include accounts app URLs
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),

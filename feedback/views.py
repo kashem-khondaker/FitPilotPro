@@ -26,7 +26,7 @@ class FeedbackViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['rating', 'fitness_class__name']
     search_fields = ['comment', 'fitness_class__name', 'user__email']
-    ordering_fields = ['rating', 'created_at']
+    ordering_fields = ['rating', '-created_at']
     pagination_class = FeedbackPagination
 
 

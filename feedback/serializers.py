@@ -8,16 +8,55 @@ class FitnessClassSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'description', 'duration', 'instructor']
         ref_name = 'FeedbackFitnessClass'
 
+from rest_framework import serializers
+from .models import Feedback, FitnessClass
+from .serializers import FitnessClassSerializer  # make sure this import path is correct
+
 class FeedbackSerializer(serializers.ModelSerializer):
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
-    fitness_class = serializers.PrimaryKeyRelatedField(queryset=FitnessClass.objects.select_related('instructor').all() )
     rating = serializers.IntegerField(min_value=1, max_value=5)
     fitness_class_details = FitnessClassSerializer(source='fitness_class', read_only=True)
 
     class Meta:
         model = Feedback
-        fields = ['id', 'user', 'fitness_class', 'fitness_class_details', 'rating', 'comment', 'created_at', 'updated_at']
-        read_only_fields = ['user', 'created_at', 'updated_at']
+        fields = [
+            'id',
+            'user',
+            'fitness_class',  # still needed internally
+            'fitness_class_details',
+            'rating',
+            'comment',
+            'created_at',
+            'updated_at'
+        ]
+        read_only_fields = ['user', 'fitness_class_details', 'created_at', 'updated_at']
+        extra_kwargs = {
+            'fitness_class': {
+                'write_only': True,  # Hide from Swagger GET response
+                'required': False,   # Because it will come from context or view
+            }
+        }
+
+    def to_representation(self, instance):
+        """Hide 'fitness_class' from response"""
+        rep = super().to_representation(instance)
+        rep.pop('fitness_class', None)
+        return rep
+
+    def validate(self, attrs):
+        user = self.context['request'].user
+        fitness_class = attrs.get('fitness_class') or self.context.get('fitness_class')
+
+        if not fitness_class:
+            raise serializers.ValidationError("Fitness class is required.")
+
+        # Optional: prevent duplicate feedback
+        if self.instance is None and Feedback.objects.filter(user=user, fitness_class=fitness_class).exists():
+            raise serializers.ValidationError("You have already submitted feedback for this class.")
+
+        attrs['fitness_class'] = fitness_class
+        return attrs
+
 
 class FeedbackTestimonialSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()

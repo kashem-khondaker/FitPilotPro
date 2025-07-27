@@ -5,7 +5,7 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import PageNumberPagination
 from feedback.models import Feedback
-from feedback.serializers import FeedbackSerializer
+from feedback.serializers import FeedbackTestimonialSerializer , FeedbackSerializer
 from core.permissions import IsMemberOrAdminStaff
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -21,7 +21,7 @@ class FeedbackPagination(PageNumberPagination):
 
 class FeedbackViewSet(viewsets.ModelViewSet):
     queryset = Feedback.objects.select_related('user', 'fitness_class').all()
-    serializer_class = FeedbackSerializer
+    serializer_class = FeedbackTestimonialSerializer
     permission_classes = [FeedbackPermission]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['rating', 'fitness_class__name']
@@ -29,26 +29,38 @@ class FeedbackViewSet(viewsets.ModelViewSet):
     ordering_fields = ['rating', 'created_at']
     pagination_class = FeedbackPagination
 
+
+    def get_serializer_class(self):
+        if self.action in ['create', 'update', 'partial_update']:
+            return FeedbackSerializer  
+        return FeedbackTestimonialSerializer  
+
+
     def get_queryset(self):
         try:
             if getattr(self, 'swagger_fake_view', False):
                 return Feedback.objects.none()
 
             user = self.request.user
+            if not user or not user.is_authenticated:
+                return Feedback.objects.select_related('user', 'fitness_class').all()
+
             if user.is_superuser or user.role == 'ADMIN':
                 return Feedback.objects.select_related('user', 'fitness_class').all()
             elif user.role == 'STAFF':
                 return Feedback.objects.filter(fitness_class__instructor=user).select_related('user', 'fitness_class')
             elif user.role == 'MEMBER':
-                return Feedback.objects.filter(user=user).select_related('user', 'fitness_class')
+                return Feedback.objects.select_related('user', 'fitness_class').all()
+
             return Feedback.objects.none()
         except Exception as e:
             raise ValidationError({'error': str(e)})
+
     
     @swagger_auto_schema(
         operation_description="Retrieve a paginated list of feedback",
         responses={
-            200: FeedbackSerializer(many=True),
+            200: FeedbackTestimonialSerializer(many=True),
             403: "Forbidden",
         },
         manual_parameters=[
@@ -60,9 +72,9 @@ class FeedbackViewSet(viewsets.ModelViewSet):
     
     @swagger_auto_schema(
         operation_description="Create a new feedback",
-        request_body=FeedbackSerializer,
+        request_body=FeedbackTestimonialSerializer,
         responses={
-            201: FeedbackSerializer,
+            201: FeedbackTestimonialSerializer,
             400: "Bad Request",
         }
     )
@@ -76,7 +88,7 @@ class FeedbackViewSet(viewsets.ModelViewSet):
             if request.user.role == 'ADMIN' or request.user.is_superuser:
                 # Generate feedback report
                 feedback_data = Feedback.objects.select_related('user', 'fitness_class').all()
-                serializer = FeedbackSerializer(feedback_data, many=True)
+                serializer = FeedbackTestimonialSerializer(feedback_data, many=True)
                 return Response(serializer.data)
             return Response({'detail': 'Not authorized'}, status=status.HTTP_403_FORBIDDEN)
         except Exception as e:

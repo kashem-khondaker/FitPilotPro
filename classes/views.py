@@ -22,7 +22,7 @@ from rest_framework.permissions import IsAuthenticated
 
 
 class FitnessClassPagination(PageNumberPagination):
-    page_size = 12
+    page_size = 8
 
 class ClassBookingPagination(PageNumberPagination):
     page_size = 6

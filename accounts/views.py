@@ -1,11 +1,16 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import ProfileSerializer
+from .serializers import ProfileSerializer,UserSerializer
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated , IsAdminUser
 from core.permissions import ProfilePermission
-from .models import Profile
+from .models import Profile , CustomUser
+
+class UserAccountView(viewsets.ModelViewSet):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAdminUser]
 
 class UserProfileView(viewsets.ModelViewSet):
     queryset = Profile.objects.all()

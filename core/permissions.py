@@ -1,9 +1,10 @@
 from django.shortcuts import render
-from rest_framework import permissions
+from rest_framework import permissions 
 from classes.models import FitnessClass, ClassBooking
 from payments.models import Payment
 from feedback.models import Feedback
 from accounts.models import Profile
+from rest_framework.permissions import SAFE_METHODS
 
 # Create your views here.
 
@@ -105,18 +106,29 @@ class ProfilePermission(permissions.BasePermission):
 
 class FeedbackPermission(permissions.BasePermission):
     def has_permission(self, request, view):
-        if request.user.is_authenticated:
-            if request.method in permissions.SAFE_METHODS:
-                return True
-            return request.user.role in ['ADMIN', 'STAFF', 'MEMBER']
-        return False
+        # Allow anyone to GET (list/retrieve)
+        if request.method in SAFE_METHODS:
+            return True
+
+        # Create/update/delete requires authentication
+        return request.user and request.user.is_authenticated
 
     def has_object_permission(self, request, view, obj):
-        # Members can only modify their own feedback
-        if request.user.role == 'MEMBER':
-            if isinstance(obj, Feedback):
-                return obj.user == request.user
-        return True
+        # SAFE_METHODS (GET, HEAD, OPTIONS) always allowed
+        if request.method in SAFE_METHODS:
+            return True
+
+        user = request.user
+
+        # Admins have full access
+        if user.is_superuser or getattr(user, "role", None) == "ADMIN":
+            return True
+
+        # Member or Staff can edit/delete only their own feedback
+        if request.method in ["PUT", "PATCH", "DELETE"]:
+            return obj.user == user
+
+        return False
 
 class PaymentPermissions(permissions.BasePermission):
     def has_permission(self, request, view):
